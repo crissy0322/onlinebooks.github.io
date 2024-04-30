@@ -1,0 +1,99 @@
+{%  extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card mb-3" >
+        <div class="row g-0">
+          <div class="col-md-4">
+            <img src="{{product.image.url}}" class="img-fluid rounded-start" alt="...">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">{{product.name}}</h5>
+              <p class="card-text">{{ product.description }}</p>
+              <p class="card-text">Category: {{ product.category }}</p>
+              
+              
+              {% if product.is_sale %}
+              <div class="d-flex justify-content-justified small text-warning mb-2">
+                <div class="bi-star-fill"></div>
+                  &nbsp;&nbsp;SALE &nbsp;&nbsp; 
+                <div class="bi-star-fill"></div>
+            </div>
+            <strike>
+                Php {{product.price}}
+                <br/>
+                </strike>
+              <p class="card-text">Php  {{ product.sale_price }}</p>
+              
+              {%else%}
+              <p class="card-text">Php  {{ product.price }}</p>
+              <br/> ID: {{product.id}}             
+
+              {% endif%}
+              <br/>
+              <br/>
+              <br/>
+              {% if product.stock_count == 0 %}
+              <p class="card-text">SOLD OUT ITEM</p>
+              
+              {%else%}
+              <p class="card-text">Available QTY:  {{ product.stock_count }}</p>
+              <br/><br/>
+              <div class ="row justify-content-justified">
+                <div class = "col-md-4">Enter number of copies to purchase:</div>
+                  <div class ="col-md-2">
+                  <select class="form-select form-select-sm" id="qty-cart">              
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>           
+                  </select>
+                </div>
+              </div>
+            </p>
+              {% endif%}
+              <br/><br/><br/>
+              <a href="{% url 'home' %}"  class ="btn btn-secondary">Home</a>  
+              {% if product.stock_count != 0 %}
+                <button type = "button" value="{{ product.id }}" class=" btn btn-secondary" id="add-cart"> Add to Cart</button>
+              {% endif %}
+                            <!-- <button class="btn btn-secondary" id="add-cart">Add to Cart</button> -->
+              
+              
+              <br/><br/><br/>
+
+              <p class="card-text"><small class="text-body-secondary">Last updated 3 minutes ago.</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br/><br/><br/><br/><br/>
+
+
+<script>
+  $(document).on('click', '#add-cart', function(e) {
+    e.preventDefault();
+    $.ajax({
+      type: 'POST',
+      url: '{% url 'cart_add' %}',
+      data: { 
+        product_id: $('#add-cart').val(),
+        product_qty: $('#qty-cart option:selected').text(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        action: 'post',
+      },
+  
+      success: function(json) {
+        document.getElementById("cart_quantity").textContent = json.qty;
+      },
+  
+      error: function(xhr, errmsg, err) {
+        console.log(xhr.responseText);
+      }
+    });
+  });
+</script>
+        
+{% endblock %}
